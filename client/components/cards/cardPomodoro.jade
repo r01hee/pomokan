@@ -1,0 +1,4 @@
+template(name="cardPomodoro")
+  h2
+    {{_ 'pomodoro-icon'}} x {{cardPomodoroCount}}
+  canvas#pomodoroProgress(width="400",height="300",onLoad=onLoadCanvas)

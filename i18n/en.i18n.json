@@ -435,5 +435,8 @@
     "accounts-allowEmailChange": "Allow Email Change",
     "createdAt": "Created at",
     "verified": "Verified",
-    "active": "Active"
+    "active": "Active",
+    "pomodoro-icon": "🍅",
+    "end-pomodoro-notification": "End Pomodoro",
+    "end-pomodoro-break-notification": "End Break Time"
 }

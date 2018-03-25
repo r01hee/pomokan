@@ -1,5 +1,13 @@
 Meteor.subscribe('user-admin');
 Meteor.subscribe('boards');
+Meteor.subscribe('pomodoro', {
+  onReady: () => {
+    const pomodoro = Pomodoro.findOne();
+    if (pomodoro) {
+      Pomodoro.setTimeout(pomodoro);
+    }
+  }
+});
 
 Template.header.helpers({
   wrappedHeader() {
