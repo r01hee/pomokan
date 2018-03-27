@@ -242,7 +242,7 @@ if (Meteor.isClient) {
     Pomodoro.timeoutID = setTimeout(()=> {
       const _pomodoro = Pomodoro.findOne();
       _pomodoro.finish();
-      const message = TAPi18n.__(pomodoro.isBreak ? 'end-pomodoro-break-notification' : 'end-pomodoro-notification');
+      const message = TAPi18n.__(_pomodoro.isBreak() ? 'end-pomodoro-break-notification' : 'end-pomodoro-notification');
       Pomodoro.timeoutID = null;
       if (window.Notification && Notification.permission === "granted") {
         const n = new Notification(message);
