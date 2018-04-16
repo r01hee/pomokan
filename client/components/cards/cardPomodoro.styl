@@ -1,0 +1,19 @@
+.cancel-pomodoro-label
+  border-radius: 50%
+  display: flex
+  position: relative
+  float: left
+  height: 30px
+  width: @height
+  margin: 0 4px 4px 0
+  cursor: pointer
+  user-select: none
+  z-index: 1
+  text-decoration: none
+
+  align-items: center
+  justify-content: center
+  box-shadow: 0 0 0 2px darken(white, 25%) inset
+
+  &:hover, &.is-active
+    box-shadow: 0 0 0 2px darken(white, 60%) inset

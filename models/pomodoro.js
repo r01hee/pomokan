@@ -211,6 +211,16 @@ Pomodoro.mutations({
   {
     return {$set: {'workingCardId': cardId}};
   },
+
+  cancel()
+  {
+    return {$set: {
+      startDate: null,
+      suspendingTime: 0,
+      state: this.state & (~(Pomodoro.STATE.working | Pomodoro.STATE.break)),
+      workingCardId: null,
+    }};
+  },
 });
 
 

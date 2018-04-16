@@ -1,4 +1,5 @@
 template(name="cardPomodoro")
-  h2
-    {{_ 'pomodoro-icon'}} x {{cardPomodoroCount}}
+  h2 {{_ 'pomodoro-icon'}} x {{cardPomodoroCount}}
+  a.cancel-pomodoro-label.js-cancel-pomodoro-label(title="{{_ 'cancel-pomodoro-labels-title'}}")
+    i.fa.fa-times
   canvas#pomodoroProgress(width="400",height="300",onLoad=onLoadCanvas)

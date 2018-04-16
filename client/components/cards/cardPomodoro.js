@@ -131,6 +131,7 @@ class PomodoroComponent extends BlazeComponent {
   {
     return [{
       'click #pomodoroProgress': this.onClickProgress,
+      'click .cancel-pomodoro-label': this.onClickCancel,
     }];
   }
 
@@ -198,10 +199,20 @@ class PomodoroComponent extends BlazeComponent {
     }
   }
 
+  onClickCancel() {
+      const pomodoro = this.getPomodoro();
+      pomodoro.cancel();
+  }
+
   cardPomodoroCount() {
     const cardId = Cards.findOne(Session.get('currentCard'))._id;
     const cardPomodoro = CardPomodoro.findOne({cardId});
     return (cardPomodoro ? cardPomodoro.count : 0);
+  }
+
+  isBreak() {
+    const pomodoro = this.getPomodoro();
+    return pomodoro.isBreak();
   }
 }
 

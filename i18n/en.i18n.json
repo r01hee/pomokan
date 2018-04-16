@@ -438,5 +438,8 @@
     "active": "Active",
     "pomodoro-icon": "🍅",
     "end-pomodoro-notification": "End Pomodoro",
-    "end-pomodoro-break-notification": "End Break Time"
+    "end-pomodoro-break-notification": "End Break Time",
+    "cancel-pomodoro-labels-title": "Cancel Pomodoro",
+    "confirm-skip-this-break": "Skip This Break?",
+    "confirm-cancel-this-pomodoro": "Cancel This Pomodoro?"
 }
