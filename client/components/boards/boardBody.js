@@ -1,5 +1,5 @@
 const subManager = new SubsManager();
-const { calculateIndex } = Utils;
+const { calculateIndex, enableClickOnTouch } = Utils;
 
 BlazeComponent.extendComponent({
   onCreated() {
@@ -74,6 +74,9 @@ BlazeComponent.extendComponent({
       },
     });
 
+    // ugly touch event hotfix
+    enableClickOnTouch('.js-swimlane:not(.placeholder)');
+
     function userIsMember() {
       return Meteor.user() && Meteor.user().isBoardMember() && !Meteor.user().isCommentOnly();
     }
@@ -87,15 +90,21 @@ BlazeComponent.extendComponent({
   },
 
   isViewSwimlanes() {
-    const currentBoardId = Session.get('currentBoard');
-    const board = Boards.findOne(currentBoardId);
-    return (board.view === 'board-view-swimlanes');
+    const currentUser = Meteor.user();
+    if (!currentUser) return false;
+    return (currentUser.profile.boardView === 'board-view-swimlanes');
   },
 
   isViewLists() {
-    const currentBoardId = Session.get('currentBoard');
-    const board = Boards.findOne(currentBoardId);
-    return (board.view === 'board-view-lists');
+    const currentUser = Meteor.user();
+    if (!currentUser) return true;
+    return (currentUser.profile.boardView === 'board-view-lists');
+  },
+
+  isViewCalendar() {
+    const currentUser = Meteor.user();
+    if (!currentUser) return true;
+    return (currentUser.profile.boardView === 'board-view-cal');
   },
 
   openNewListForm() {
@@ -107,7 +116,6 @@ BlazeComponent.extendComponent({
         .childComponents('addListForm')[0].open();
     }
   },
-
   events() {
     return [{
       // XXX The board-overlay div should probably be moved to the parent
@@ -139,4 +147,90 @@ BlazeComponent.extendComponent({
     });
   },
 
+  scrollTop(position = 0) {
+    const swimlanes = this.$('.js-swimlanes');
+    swimlanes && swimlanes.animate({
+      scrollTop: position,
+    });
+  },
+
 }).register('boardBody');
+
+BlazeComponent.extendComponent({
+  onRendered() {
+    this.autorun(function(){
+      $('#calendar-view').fullCalendar('refetchEvents');
+    });
+  },
+  calendarOptions() {
+    return {
+      id: 'calendar-view',
+      defaultView: 'agendaDay',
+      editable: true,
+      timezone: 'local',
+      header: {
+        left: 'title   today prev,next',
+        center: 'agendaDay,listDay,timelineDay agendaWeek,listWeek,timelineWeek month,timelineMonth timelineYear',
+        right: '',
+      },
+      // height: 'parent', nope, doesn't work as the parent might be small
+      height: 'auto',
+      /* TODO: lists as resources: https://fullcalendar.io/docs/vertical-resource-view */
+      navLinks: true,
+      nowIndicator: true,
+      businessHours: {
+        // days of week. an array of zero-based day of week integers (0=Sunday)
+        dow: [ 1, 2, 3, 4, 5 ], // Monday - Friday
+        start: '8:00',
+        end: '18:00',
+      },
+      locale: TAPi18n.getLanguage(),
+      events(start, end, timezone, callback) {
+        const currentBoard = Boards.findOne(Session.get('currentBoard'));
+        const events = [];
+        currentBoard.cardsInInterval(start.toDate(), end.toDate()).forEach(function(card){
+          events.push({
+            id: card._id,
+            title: card.title,
+            start: card.startAt,
+            end: card.endAt,
+            allDay: Math.abs(card.endAt.getTime() - card.startAt.getTime()) / 1000 === 24*3600,
+            url: FlowRouter.url('card', {
+              boardId: currentBoard._id,
+              slug: currentBoard.slug,
+              cardId: card._id,
+            }),
+          });
+        });
+        callback(events);
+      },
+      eventResize(event, delta, revertFunc) {
+        let isOk = false;
+        const card = Cards.findOne(event.id);
+
+        if (card) {
+          card.setEnd(event.end.toDate());
+          isOk = true;
+        }
+        if (!isOk) {
+          revertFunc();
+        }
+      },
+      eventDrop(event, delta, revertFunc) {
+        let isOk = false;
+        const card = Cards.findOne(event.id);
+        if (card) {
+          // TODO: add a flag for allDay events
+          if (!event.allDay) {
+            card.setStart(event.start.toDate());
+            card.setEnd(event.end.toDate());
+            isOk = true;
+          }
+        }
+        if (!isOk) {
+          revertFunc();
+        }
+      },
+    };
+  },
+}).register('calendarView');

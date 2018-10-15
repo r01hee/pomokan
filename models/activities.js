@@ -44,6 +44,12 @@ Activities.helpers({
   checklistItem() {
     return ChecklistItems.findOne(this.checklistItemId);
   },
+  subtasks() {
+    return Cards.findOne(this.subtaskId);
+  },
+  customField() {
+    return CustomFields.findOne(this.customFieldId);
+  },
 });
 
 Activities.before.insert((userId, doc) => {
@@ -60,6 +66,7 @@ if (Meteor.isServer) {
     Activities._collection._ensureIndex({ boardId: 1, createdAt: -1 });
     Activities._collection._ensureIndex({ commentId: 1 }, { partialFilterExpression: { commentId: { $exists: true } } });
     Activities._collection._ensureIndex({ attachmentId: 1 }, { partialFilterExpression: { attachmentId: { $exists: true } } });
+    Activities._collection._ensureIndex({ customFieldId: 1 }, { partialFilterExpression: { customFieldId: { $exists: true } } });
   });
 
   Activities.after.insert((userId, doc) => {
@@ -110,6 +117,9 @@ if (Meteor.isServer) {
       params.url = card.absoluteUrl();
       params.cardId = activity.cardId;
     }
+    if (activity.swimlaneId) {
+      params.swimlaneId = activity.swimlaneId;
+    }
     if (activity.commentId) {
       const comment = activity.comment();
       params.comment = comment.text;
@@ -126,6 +136,10 @@ if (Meteor.isServer) {
     if (activity.checklistItemId) {
       const checklistItem = activity.checklistItem();
       params.checklistItem = checklistItem.title;
+    }
+    if (activity.customFieldId) {
+      const customField = activity.customField();
+      params.customField = customField.name;
     }
     if (board) {
       const watchingUsers = _.pluck(_.where(board.watchers, {level: 'watching'}), 'userId');

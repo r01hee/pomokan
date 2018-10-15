@@ -1,4 +1,4 @@
-const { calculateIndex } = Utils;
+const { calculateIndex, enableClickOnTouch } = Utils;
 
 BlazeComponent.extendComponent({
   // Proxy
@@ -47,6 +47,7 @@ BlazeComponent.extendComponent({
       items: itemsSelector,
       placeholder: 'minicard-wrapper placeholder',
       start(evt, ui) {
+        ui.helper.css('z-index', 1000);
         ui.placeholder.height(ui.helper.height());
         EscapeActions.executeUpTo('popup-close');
         boardComponent.setIsDragging(true);
@@ -82,6 +83,9 @@ BlazeComponent.extendComponent({
         boardComponent.setIsDragging(false);
       },
     });
+
+    // ugly touch event hotfix
+    enableClickOnTouch(itemsSelector);
 
     // Disable drag-dropping if the current user is not a board member or is comment only
     this.autorun(() => {
